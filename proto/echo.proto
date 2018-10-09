@@ -1,0 +1,15 @@
+syntax="proto3";
+
+package svc;
+
+message EchoRequest {
+    string msg = 1;
+}
+
+message EchoResponse {
+    string msg = 1;
+}
+
+service Echo {
+    rpc Echo(EchoRequest) returns (EchoResponse) {}
+}
