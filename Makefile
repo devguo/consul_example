@@ -30,12 +30,20 @@ lint: ## Run all the linters
 	./...
 
 .PHONY: build
-build: kv
+build: kv client server
 
 
 .PHONY: kv
 kv:
 	CGO_ENABLED=0 GOOS=darwin go build -o ./bin/kv ./kv/main.go
+
+.PHONY: client
+client:
+	CGO_ENABLED=0 GOOS=darwin go build -o ./bin/client ./echo_client/main.go
+
+.PHONY: server
+server:
+	CGO_ENABLED=0 GOOS=darwin go build -o ./bin/server ./echo_server/main.go
 
 .PHONY:clean
 clean: ## Remove temporary files

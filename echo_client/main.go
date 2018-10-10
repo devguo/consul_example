@@ -56,20 +56,24 @@ func (c *Client) Run() error  {
 func main()  {
 	//init consul client
 	cfg := api.DefaultConfig()
-	cfg.Address = "192.168.2.251:8500"
+	cfg.Address = "192.168.2.220:8500"
 	cli ,err := api.NewClient(cfg)
 	if err != nil {
 		log.Printf("init consul client failed. %v",err)
 		return
 	}
 
-	services,err := cli.Agent().Services()
+	//services,err := cli.Agent().Services()
+	services,_,err := cli.Health().Service("echo","",true,nil)
+	if err != nil {
+		log.Printf("get service failed. err=%v",err)
+		return
+	}
+
 
 	//find service by id, can find by other info, eg, Tag, Service
-	echo , ok := services["echo-001"]
-	if !ok {
-		log.Printf("service not found, id=%s","echo-001")
-	}
+	echo := services[0].Service
+
 
 	c := NewClient(echo.Address,echo.Port)
 	err = c.Init()

@@ -53,7 +53,7 @@ func (s *Server) RegisterToConsul() error  {
 	}
 
 	service := &api.AgentServiceRegistration{
-		ID: "echo-001",
+		ID: "echo-002",
 		Name: "echo",
 		Address:s.Ip,
 		Port:s.Port,
@@ -73,7 +73,7 @@ func (s *Server) RegisterToConsul() error  {
 
 func main()  {
 	//replace ip and port with yours
-	srv := NewServer("192.168.2.209",13579,"192.168.2.251:8500")
+	srv := NewServer("192.168.2.209",13571,"192.168.2.209:8500")
 	err := srv.RegisterToConsul()
 	if err != nil {
 		log.Printf("register to consul failed. %v",err)
