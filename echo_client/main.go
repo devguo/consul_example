@@ -1,50 +1,50 @@
 package main
 
 import (
-	"google.golang.org/grpc"
+	"context"
 	"fmt"
 	"github.com/devguo/consul_example/pkg/pb"
-	"context"
-	"time"
-	"log"
 	"github.com/hashicorp/consul/api"
-	)
+	"google.golang.org/grpc"
+	"log"
+	"time"
+)
 
 type Client struct {
-	Ip string
+	Ip   string
 	Port int
 	conn *grpc.ClientConn
 }
 
-func NewClient(ip string, port int) *Client  {
-	return &Client {
-		Ip:ip,
-		Port:port,
+func NewClient(ip string, port int) *Client {
+	return &Client{
+		Ip:   ip,
+		Port: port,
 	}
 }
 
-func (c *Client) Init() error  {
-	addr := fmt.Sprintf("%s:%d",c.Ip, c.Port)
-	conn, err := grpc.Dial(addr,grpc.WithInsecure())
-	if err != nil{
+func (c *Client) Init() error {
+	addr := fmt.Sprintf("%s:%d", c.Ip, c.Port)
+	conn, err := grpc.Dial(addr, grpc.WithInsecure())
+	if err != nil {
 		return err
 	}
 
 	c.conn = conn
-	return  nil
+	return nil
 }
 
-func (c *Client) Run() error  {
+func (c *Client) Run() error {
 	req := &svc.EchoRequest{
-		Msg:"Hello Hello Hello",
+		Msg: "Hello Hello Hello",
 	}
 
 	echoCli := svc.NewEchoClient(c.conn)
 
-	ctx , cancel := context.WithTimeout(context.Background(),time.Second)
+	ctx, cancel := context.WithTimeout(context.Background(), time.Second)
 	defer cancel()
 
-	rsp , err := echoCli.Echo(ctx, req)
+	rsp, err := echoCli.Echo(ctx, req)
 	if err != nil {
 		return err
 	}
@@ -53,32 +53,30 @@ func (c *Client) Run() error  {
 	return nil
 }
 
-func main()  {
+func main() {
 	//init consul client
 	cfg := api.DefaultConfig()
-	cfg.Address = "192.168.2.220:8500"
-	cli ,err := api.NewClient(cfg)
+	cfg.Address = "192.168.2.251:8500"
+	cli, err := api.NewClient(cfg)
 	if err != nil {
-		log.Printf("init consul client failed. %v",err)
+		log.Printf("init consul client failed. %v", err)
 		return
 	}
 
 	//services,err := cli.Agent().Services()
-	services,_,err := cli.Health().Service("echo","",true,nil)
+	services, _, err := cli.Health().Service("echo", "dev", true, nil)
 	if err != nil {
-		log.Printf("get service failed. err=%v",err)
+		log.Printf("get service failed. err=%v", err)
 		return
 	}
-
 
 	//find service by id, can find by other info, eg, Tag, Service
 	echo := services[0].Service
 
-
-	c := NewClient(echo.Address,echo.Port)
+	c := NewClient(echo.Address, echo.Port)
 	err = c.Init()
 	if err != nil {
-		log.Printf("establish connection failed. %v",err)
+		log.Printf("establish connection failed. %v", err)
 		return
 	}
 
@@ -86,7 +84,7 @@ func main()  {
 	for t := range ticker.C {
 		err = c.Run()
 		if err != nil {
-			log.Printf("%s client run with error %v",t,err)
+			log.Printf("%s client run with error %v", t, err)
 		}
 	}
 }
